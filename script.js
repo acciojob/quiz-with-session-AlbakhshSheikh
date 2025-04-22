@@ -3,37 +3,79 @@ const questionsElement = document.getElementById("questions");
 const submitButton = document.getElementById("submit");
 const scoreElement = document.getElementById("score");
 
-// Load user answers from session storage or initialize empty array
-let userAnswers = JSON.parse(sessionStorage.getItem("progress")) || Array(questions.length).fill(null);
+// Load saved answers from sessionStorage or initialize empty array
+let userAnswers = JSON.parse(sessionStorage.getItem("progress")) || new Array(questions.length).fill(null);
 
-// Load and display score from local storage if it exists
+// Load previous score from localStorage if exists
 const savedScore = localStorage.getItem("score");
 if (savedScore) {
   scoreElement.textContent = `Your score is ${savedScore} out of 5`;
 }
 
-// Save answers to session storage when a radio button is clicked
-questionsElement.addEventListener("change", (event) => {
-  if (event.target.type === "radio") {
-    const questionIndex = parseInt(event.target.name.split("-")[1]);
-    userAnswers[questionIndex] = event.target.value;
-    sessionStorage.setItem("progress", JSON.stringify(userAnswers));
+// Modified renderQuestions to handle radio button changes
+function renderQuestions() {
+  questionsElement.innerHTML = ""; // Clear existing content
+  for (let i = 0; i < questions.length; i++) {
+    const question = questions[i];
+    const questionElement = document.createElement("div");
+    questionElement.className = "question";
+    const questionText = document.createTextNode(question.question);
+    questionElement.appendChild(questionText);
+    
+    for (let j = 0; j < question.choices.length; j++) {
+      const choice = question.choices[j];
+      const choiceElement = document.createElement("input");
+      choiceElement.type = "radio";
+      choiceElement.name = `question-${i}`;
+      choiceElement.value = choice;
+      choiceElement.id = `q${i}-choice${j}`;
+      
+      // Check if this choice was previously selected
+      if (userAnswers[i] === choice) {
+        choiceElement.checked = true;
+      }
+      
+      // Add event listener to save selection
+      choiceElement.addEventListener("change", () => {
+        userAnswers[i] = choice;
+        sessionStorage.setItem("progress", JSON.stringify(userAnswers));
+      });
+      
+      const choiceLabel = document.createElement("label");
+      choiceLabel.htmlFor = `q${i}-choice${j}`;
+      choiceLabel.textContent = choice;
+      
+      questionElement.appendChild(document.createElement("br"));
+      questionElement.appendChild(choiceElement);
+      questionElement.appendChild(choiceLabel);
+    }
+    questionsElement.appendChild(questionElement);
   }
-});
+}
 
-// Handle quiz submission
-submitButton.addEventListener("click", () => {
+// Calculate and display score on submit
+function calculateScore() {
   let score = 0;
   for (let i = 0; i < questions.length; i++) {
     if (userAnswers[i] === questions[i].answer) {
       score++;
     }
   }
+  return score;
+}
+
+// Handle submit button click
+submitButton.addEventListener("click", () => {
+  const score = calculateScore();
   scoreElement.textContent = `Your score is ${score} out of 5`;
   localStorage.setItem("score", score);
+  // Clear session storage after submission
+  sessionStorage.removeItem("progress");
+  userAnswers = new Array(questions.length).fill(null);
+  renderQuestions();
 });
 
-// Initial rendering of questions
+// Initial render
 renderQuestions();
 // Do not change code below this line
 // This code will just display the questions to the screen
