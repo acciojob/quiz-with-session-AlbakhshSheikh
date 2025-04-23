@@ -61,6 +61,7 @@ function renderQuestions() {
       // Check if previously selected
       if (userAnswers[i] === choice) {
         input.checked = true;
+		input.setAttribute("checked", "true");
       }
 
       input.addEventListener("change", () => {
