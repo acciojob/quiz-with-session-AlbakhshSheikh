@@ -37,7 +37,7 @@ let userAnswers = JSON.parse(sessionStorage.getItem("progress")) || new Array(qu
 // Load and display saved score
 const savedScore = localStorage.getItem("score");
 if (savedScore !== null) {
-  scoreElement.textContent = `Your score is ${savedScore} out of 5`;
+  scoreElement.textContent = `Your score is ${savedScore} out of 5.`;
 }
 
 // Render the questions
@@ -96,7 +96,7 @@ function calculateScore() {
 // Submit button logic
 submitButton.addEventListener("click", () => {
   const score = calculateScore();
-  scoreElement.textContent = `Your score is ${score} out of 5`;
+  scoreElement.textContent = `Your score is ${score} out of 5.`;
   localStorage.setItem("score", score);
   sessionStorage.removeItem("progress");
   userAnswers = new Array(questions.length).fill(null);
